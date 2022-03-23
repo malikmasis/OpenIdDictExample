@@ -6,27 +6,31 @@ namespace OpenIdDictExample.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly ApplicationDbContext _applicationDbContext;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, ApplicationDbContext applicationDbContext)
     {
         _logger = logger;
+        _applicationDbContext = applicationDbContext;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        return _applicationDbContext.Set<WeatherForecast>().ToList();
+    }
+
+    [HttpPost("Create")]
+    public async Task Create()
+    {
+        await _applicationDbContext.Set<WeatherForecast>().AddAsync(new WeatherForecast()
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            Date = DateTime.Now,
+            Summary = "Test",
+            TemperatureC = 32
+        });
+        _logger.LogInformation("Created value");
+        await _applicationDbContext.SaveChangesAsync();
     }
 }

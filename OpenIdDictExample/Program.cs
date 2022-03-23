@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using OpenIdDictExample;
 
 var builder = WebApplication.CreateBuilder(args);
